@@ -44,24 +44,37 @@ The protocol handles the inherent unreliability of UDP through:
 3.  **Send Data:** Type a message and send.
 4.  **Observe:** Check the logs. You will see the packet get "Dropped," followed by a "Timeout," and finally a successful **"Retransmission"**.
 
-## 🏗️ Architecture
+## 🏗️ Architecture & Implementation Logic
 
 ```mermaid
 graph TD
-    User["👤 User Data / GUI"] -->|1. Data| Packetizer["📦 Packetizer"]
-    Packetizer -->|2. Buffer| Buffer["💾 Window Buffer"]
+    User["👤 User Input"] -->|1. Connect| Handshake["🤝 3-Way Handshake"]
+    User -->|2. Send Data| GBN["💾 GBN Sliding Window"]
     
-    Buffer --> Checksum["🧮 Calc Checksum"]
-    Checksum --> ErrorInjector{"🎲 Error Injection?"}
+    Handshake --> Packetizer["📦 Packetizer (Struct)"]
+    GBN --> Packetizer
     
-    ErrorInjector -- "Drop/Delay" --> Log["📝 Log Error"]
-    ErrorInjector -- "Pass" --> Socket["🔌 Python UDP Socket"]
+    Packetizer --> Checksum["🧮 Calc Checksum"]
+    Checksum --> ErrorSim{"🎲 Error Injection"}
     
-    Socket <-->|3. Real Bytes Unreliable| Internet["☁️ Localhost / Network"]
+    ErrorSim -- "Drop Packet" --> Log["❌ Log: Packet Lost"]
+    ErrorSim -- "Pass" --> RealSock["🔌 Real UDP Socket"]
     
-    Internet --> RecvSock["🔌 UDP Socket"]
-    RecvSock --> Validator{"✅ Validate?"}
+    RealSock -->|Binary Stream| Network["☁️ Internet / Localhost"]
     
-    Validator -- "Corrupt/Gap" --> Discard["🗑️ Discard & Re-ACK"]
-    Validator -- "Valid" --> Process["🔓 Extract Payload"]
-    Process -->|4. Deliver| User
+    %% Retransmission Loop
+    GBN -.->|Timeout?| Retransmit["QC Retransmit Window"]
+    Retransmit --> Checksum
+
+    %% Receiver Side
+    Network --> RecvSock["🔌 UDP Socket"]
+    RecvSock --> Validate{"✅ Checksum Valid?"}
+    
+    Validate -- "No" --> Drop["🗑️ Drop (Corrupt)"]
+    Validate -- "Yes" --> SeqCheck{"🔢 Seq Expected?"}
+    
+    SeqCheck -- "Gap/Dupe" --> ReACK["⚠️ Resend Last ACK"]
+    SeqCheck -- "Order OK" --> Deliver["🔓 Extract Data"]
+    
+    Deliver -->|3. Receive| App["👤 Receiver App"]
+    Deliver -.->|ACK N| RealSock
