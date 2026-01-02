@@ -82,4 +82,4 @@ graph TD
         Validator -- "Corrupt/Gap" --> Discard["🗑️ Discard & Re-ACK"]:::error
         Validator -- "Valid" --> Process["🔓 Extract Payload"]:::rdt
         Process -->|4. Deliver| User
-    end
+  
