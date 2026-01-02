@@ -46,8 +46,6 @@ The protocol handles the inherent unreliability of UDP through:
 
 ## 🏗️ Architecture & Error Handling Logic
 
-This diagram shows how the application wraps a real UDP socket with a reliability layer.
-
 ```mermaid
 graph TD
     %% --- Styles ---
@@ -82,4 +80,4 @@ graph TD
         Validator -- "Corrupt/Gap" --> Discard["🗑️ Discard & Re-ACK"]:::error
         Validator -- "Valid" --> Process["🔓 Extract Payload"]:::rdt
         Process -->|4. Deliver| User
-  
+    end
