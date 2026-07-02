@@ -36,7 +36,7 @@ The protocol handles the inherent unreliability of UDP through:
 1.Clone the repo:
    ```bash
 
-    git clone  https://github.com/amirkhedri/Reliable-UDP-TCP-Sim
+     git clone  https://github.com/amirkhedri/Reliable-UDP-TCP-Sim
    ```
 
 2.  Run the main script:
