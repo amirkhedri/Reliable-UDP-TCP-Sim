@@ -31,9 +31,14 @@ The protocol handles the inherent unreliability of UDP through:
 * **Drop/Delay Simulation:** A middleware layer randomly drops or delays outgoing packets to force the protocol to recover.
 
 ## 🛠️ Usage
-
+   
 ### Running the Application
-1.  Run the main script:
+1.Clone the repo:
+    ```bash
+    git clone  https://github.com/amirkhedri/Reliable-UDP-TCP-Sim
+      ```
+
+2.  Run the main script:
     ```bash
     python SecuredTransportation.py
     ```
